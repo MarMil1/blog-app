@@ -1,65 +1,91 @@
-import './singleArticleComponent.css'
+import './singleArticleComponent.css';
+import { useLocation } from 'react-router';
+import { useContext, useEffect, useState } from 'react';
+import axios from 'axios';
+import { Link } from 'react-router-dom';
+import { Context } from '../../context/Context';
 
 export default function SingleArticleComponent() {
+    const location = useLocation();
+    const path = location.pathname.split('/')[2];
+    const [article, setArticle] = useState({});
+    const publicFolder = "http://localhost:5000/images/";
+    const { user } = useContext(Context);
+    const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
+    const [updateMode, setUpdateMode] = useState(false);
+
+    useEffect(() => {
+        const fetchArticle = async () => {
+            const res = await axios.get("/articles/" + path);
+            setArticle(res.data);
+        }
+        fetchArticle();
+    }, [path]);
+
+    const handleDelete = async () => {
+        try {
+            await axios.delete(`/articles/${article._id}`, {
+                data: { username: user.username }
+            });
+            window.location.replace("/");
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     return (
         <div className="singleArticleComponent">
             <div className="singleArticleComponentWrapper">
-                <img 
-                    className="singleArticleComponentImage"
-                    src="https://images.pexels.com/photos/3944454/pexels-photo-3944454.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260" 
-                    alt="" 
-                />
-                <h1 className="singleArticleComponentTitle">
-                    Lorem, ipsum dolor sit amet
-                    <div className="singleArticleComponentEdit">
-                        <i className="singleArticleComponentIcon far fa-edit"></i>
-                        <i className="singleArticleComponentIcon far fa-trash-alt"></i>
-                    </div>
-                </h1> 
+                {article.image && (
+                    <img 
+                        className="singleArticleComponentImage"
+                        src={publicFolder + article.image} 
+                        alt="" 
+                    />
+                )}
+                {
+                    updateMode ? <input 
+                                    type="text" 
+                                    value={article.title} 
+                                    className="singleArticleComponentTitleInput"
+                                    autoFocus
+                                /> : (
+
+                        <h1 className="singleArticleComponentTitle">
+                            {article.title}
+                            {article.username === user?.username && (
+                                <div className="singleArticleComponentEdit">
+                                    <i 
+                                        className="singleArticleComponentIcon far fa-edit"  
+                                        onClick={() => setUpdateMode(true)}
+                                    ></i>
+                                    <i 
+                                        className="singleArticleComponentIcon far fa-trash-alt" 
+                                        onClick={handleDelete}
+                                    ></i>
+                                </div>
+                            )}
+                        </h1> 
+                    )
+                }
                 <div className="singleArticleComponentInfo">
                     <span className="singleArticleComponentAuthor">
-                        Author: <b>Marko</b>
+                        Author: 
+                        <Link to={`/?user=${article.username}`} className="link">
+                            <b>{article.username}</b>
+                        </Link>
                     </span>
-                    <span className="singleArticleComponentDate">1 hour ago</span>
+                    <span className="singleArticleComponentDate">{new Date(article.createdAt).toDateString()}</span>
                 </div>
-                <p className="singleArticleComponentContent">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                    Magni impedit, quae odit alias doloremque hic quia fugiat 
-                    quam explicabo? Itaque, repudiandae? Velit consequatur 
-                    adipisci sapiente voluptates facere eius accusamus at?
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                    Magni impedit, quae odit alias doloremque hic quia fugiat 
-                    quam explicabo? Itaque, repudiandae? Velit consequatur 
-                    adipisci sapiente voluptates facere eius accusamus at?
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                    Magni impedit, quae odit alias doloremque hic quia fugiat 
-                    quam explicabo? Itaque, repudiandae? Velit consequatur 
-                    adipisci sapiente voluptates facere eius accusamus at?
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                    Magni impedit, quae odit alias doloremque hic quia fugiat 
-                    quam explicabo? Itaque, repudiandae? Velit consequatur 
-                    adipisci sapiente voluptates facere eius accusamus at?
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                    Magni impedit, quae odit alias doloremque hic quia fugiat 
-                    quam explicabo? Itaque, repudiandae? Velit consequatur 
-                    adipisci sapiente voluptates facere eius accusamus at?
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                    Magni impedit, quae odit alias doloremque hic quia fugiat 
-                    quam explicabo? Itaque, repudiandae? Velit consequatur 
-                    adipisci sapiente voluptates facere eius accusamus at?
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                    Magni impedit, quae odit alias doloremque hic quia fugiat 
-                    quam explicabo? Itaque, repudiandae? Velit consequatur 
-                    adipisci sapiente voluptates facere eius accusamus at?
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                    Magni impedit, quae odit alias doloremque hic quia fugiat 
-                    quam explicabo? Itaque, repudiandae? Velit consequatur 
-                    adipisci sapiente voluptates facere eius accusamus at?
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                    Magni impedit, quae odit alias doloremque hic quia fugiat 
-                    quam explicabo? Itaque, repudiandae? Velit consequatur 
-                    adipisci sapiente voluptates facere eius accusamus at?
-                </p>
+                {updateMode ? (
+                    <textarea className="singleArticleComponentContentInput"/>
+                ) : (
+                    <p className="singleArticleComponentContent">
+                        {article.description}
+                    </p>
+                )}
+                
             </div>
         </div>
     )

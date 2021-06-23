@@ -1,41 +1,38 @@
 import './blogArticle.css'
+import { Link } from 'react-router-dom'
 
-export default function BlogArticle() {
+export default function BlogArticle({ article }) {
+    const publicFolder = "http://localhost:5000/images/";
     return (
         <div className="article">
-            <img 
-                className="articleImage"
-                src="https://images.pexels.com/photos/3944454/pexels-photo-3944454.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260"
-                alt=""
-            />
+            {!article.image ? 
+                (<img 
+                    className="articleImage"
+                    src="https://images.pexels.com/photos/3944454/pexels-photo-3944454.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260"
+                    alt=""
+                />) 
+                :
+                (<img 
+                    className="articleImage"
+                    src={publicFolder + article.image}
+                    alt=""
+                />)
+            }
+            
             <div className="articleInfo">
-                <div className="articleCategories">
-                    <span className="articleCategory">Music</span>
-                    <span className="articleCategory">Life</span>
+                <div className="articleCategories">{
+                    article.categories.map((cat) => (
+                        <span className="articleCategory">{cat.name}</span>
+                    ))}
                 </div>
-                <span className="articleTitle">
-                    Lorem ipsum dolor sit
-                </span>
+                <Link to={`/article/${article._id}`} className="link">
+                    <span className="articleTitle">{article.title}</span>
+                </Link>
                 <hr/>
-                <span className="articleDate">1 ago ago</span>
+                <span className="articleDate">{new Date(article.createdAt).toDateString()}</span>
             </div>
             <p className="articleDescription">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                Minus veniam dolorum amet ducimus tempore iure unde 
-                voluptas vitae voluptatibus, ipsam esse rerum maiores 
-                tempora similique facere voluptatum nulla nisi ut?
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                Minus veniam dolorum amet ducimus tempore iure unde 
-                voluptas vitae voluptatibus, ipsam esse rerum maiores 
-                tempora similique facere voluptatum nulla nisi ut?
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                Minus veniam dolorum amet ducimus tempore iure unde 
-                voluptas vitae voluptatibus, ipsam esse rerum maiores 
-                tempora similique facere voluptatum nulla nisi ut?
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                Minus veniam dolorum amet ducimus tempore iure unde 
-                voluptas vitae voluptatibus, ipsam esse rerum maiores 
-                tempora similique facere voluptatum nulla nisi ut?
+                {article.description}
             </p>
         </div>
     )

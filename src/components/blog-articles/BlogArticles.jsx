@@ -1,15 +1,13 @@
 import BlogArticle from '../blog-article/BlogArticle'
 import './blogArticles.css'
 
-export default function BlogArticles() {
+export default function BlogArticles({ articles }) {
     return (
         <div className="articles">
-            <BlogArticle />
-            <BlogArticle />
-            <BlogArticle />
-            <BlogArticle />
-            <BlogArticle />
-            <BlogArticle />
+            {articles.map((art) => (
+                <BlogArticle article={art}/>
+            ))}
+            
         </div>
     )
 }
